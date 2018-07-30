@@ -1,11 +1,15 @@
-from flask import Flask, request, jsonify
-from flask import abort
+from flask import Flask, request, jsonify,  redirect, session
+from flask import abort, render_template
 from flask import make_response, url_for
+from flask_cors import CORS, cross_origin
 import json
 from time import gmtime, strftime
 import sqlite3
 
 app = Flask(__name__)
+app.config.from_object(__name__)
+app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
+CORS(app)
 
 # Methods
 def list_users():
@@ -213,7 +217,6 @@ def get_tweets():
 
 @app.route('/api/v2/tweets', methods=['POST'])
 def add_tweets():
-
     user_tweet = {}
     if not request.json or not 'username' in request.json or not 'body' in request.json:
         abort(400)
@@ -227,6 +230,50 @@ def add_tweets():
 def get_tweet(id):
     return list_tweet(id)
 
+def sumSessionCounter():
+    try:
+        session['counter'] += 1
+    except KeyError:
+        session['counter'] = 1
+
+@app.route('/')
+def main():
+    sumSessionCounter()
+    return render_template('main.html')
+
+@app.route('/addname')
+def addname():
+  sumSessionCounter()
+  if request.args.get('yourname'):
+    session['name'] = request.args.get('yourname')
+    # And then redirect the user to the main page
+    return redirect(url_for('main'))
+  else:
+    # If no name has been sent, show the form
+    return render_template('addname.html', session=session)
+
+@app.route('/clear')
+def clearsession():
+    # Clear the session
+    session.clear()
+    # Redirect the user to the main page
+    return redirect(url_for('main'))
+
+@app.route('/adduser')
+def adduser():
+    return render_template('adduser.html')
+
+@app.route('/addtweets')
+def addtweetjs():
+    return render_template('addtweets.html')
+
+@app.route('/set_cookie')
+def cookie_insertion():
+    redirect_to_main = redirect('/')
+    response = current_app.make_response(redirect_to_main)
+    response.set_cookie('cookie_name', value='values')
+    return response
+    
 # Errors
 @app.errorhandler(404)
 def resource_not_found(error):
