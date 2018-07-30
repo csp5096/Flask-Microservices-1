@@ -2,14 +2,61 @@ from flask import Flask, request, jsonify,  redirect, session
 from flask import abort, render_template
 from flask import make_response, url_for
 from flask_cors import CORS, cross_origin
+from pymongo import MongoClient
 import json
 from time import gmtime, strftime
 import sqlite3
 
+# connection to MongoDB Database
+connection = MongoClient("mongodb://localhost:27017/")
+
+# Object creation
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 CORS(app)
+
+# Initialize Database
+def create_mongodatabase():
+    try:
+        dbnames = connection.database_names()
+        if 'cloud_native' not in dbnames:
+            db = connection.cloud_native.users
+            db_tweets = connection.cloud_native.tweets
+            db_api = connection.cloud_native.apirelease
+
+            db.insert({
+            "email": "eric.strom@google.com",
+            "id": 33,
+            "name": "Eric stromberg",
+            "password": "eric@123",
+            "username": "eric.strom"
+            })
+
+            db_tweets.insert({
+            "body": "New blog post,Launch your app with the AWS Startup Kit! #AWS",
+            "id": 18,
+            "timestamp": "2017-03-11T06:39:40Z",
+            "tweetedby": "eric.strom"
+            })
+
+            db_api.insert( {
+              "buildtime": "2017-01-01 10:00:00",
+              "links": "/api/v1/users",
+              "methods": "get, post, put, delete",
+              "version": "v1"
+            })
+            db_api.insert( {
+              "buildtime": "2017-02-11 10:00:00",
+              "links": "api/v2/tweets",
+              "methods": "get, post",
+              "version": "2017-01-10 10:00:00"
+            })
+            print ("Database Initialize completed!")
+        else:
+            print ("Database already Initialized!")
+    except:
+        print ("Database creation failed!!")
 
 # Methods
 def list_users():
@@ -157,18 +204,10 @@ def add_tweet(new_tweets):
 # Routing
 @app.route("/api/v1/info")
 def home_index():
-    conn = sqlite3.connect('mydb.db')
-    print ("Opened database successfully");
     api_list=[]
-    cursor = conn.execute("SELECT buildtime, version, methods, links from apirelease")
-    for row in cursor:
-        api = {}
-        api['version'] = row[0]
-        api['buildtime'] = row[1]
-        api['methods'] = row[2]
-        api['links'] = row[3]
-        api_list.append(api)
-    conn.close()
+    db = connection.cloud_native.apirelease
+    for row in db.find():
+        api_list.append(str(row))
     return jsonify({'api_version': api_list}), 200
 
 @app.route('/api/v1/users', methods=['GET'])
@@ -267,13 +306,6 @@ def adduser():
 def addtweetjs():
     return render_template('addtweets.html')
 
-@app.route('/set_cookie')
-def cookie_insertion():
-    redirect_to_main = redirect('/')
-    response = current_app.make_response(redirect_to_main)
-    response.set_cookie('cookie_name', value='values')
-    return response
-    
 # Errors
 @app.errorhandler(404)
 def resource_not_found(error):
@@ -288,4 +320,5 @@ def invalid_request(error):
     return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 if __name__ == '__main__':
+    create_mongodatabase()
     app.run(host='0.0.0.0', port=5000, debug=True)
