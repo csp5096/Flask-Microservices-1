@@ -3,9 +3,12 @@ from flask import abort, render_template
 from flask import make_response, url_for
 from flask_cors import CORS, cross_origin
 from pymongo import MongoClient
-import json, random
 from time import gmtime, strftime
 import sqlite3
+import json, random
+import logging
+
+# logging.basicConfig(filename="logFile.log", level=logging.DEBUG)
 
 # connection to MongoDB Database
 connection = MongoClient("mongodb://localhost:27017/")
@@ -68,6 +71,7 @@ def list_users():
 
 def list_user(user_id):
     api_list=[]
+    # logging.debug("id".format(user_id))
     db = connection.cloud_native.users
     for i in db.find({'id':user_id}):
         api_list.append(str(i))

@@ -1,0 +1,36 @@
+{
+  "name": "Flask-Microservices-1",
+  "version": "1.0.0",
+  "description": "Flask-Microservices-1",
+  "main": "index.js",
+  "dependencies": {
+    "babel-loader": "^6.4.1",
+    "fbjs": "^0.8.11",
+    "object-assign": "^4.1.1",
+    "react": "^15.4.2",
+    "react-dev": "0.0.1",
+    "react-dom": "^0.14.7",
+    "requirejs": "^2.3.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^6.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "webpack": "^1.12.12"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/csp5096/Flask-Microservices-1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/csp5096/Flask-Microservices-1/issues"
+  },
+  "homepage": "https://github.com/csp5096/Flask-Microservices-1#readme"
+}
